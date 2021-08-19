@@ -44,6 +44,7 @@ public final class ShardingSelectStatementValidator extends ShardingDMLStatement
         if (!sqlStatementContext.getSqlStatement().getUnionSegments().isEmpty() && !shardingRule.getShardingBroadcastTableNames(sqlStatementContext.getTablesContext().getTableNames()).isEmpty()) {
             throw new ShardingSphereException("SELECT ... UNION statement can not support sharding tables or broadcast tables.");
         }
+        isTableExist(sqlStatementContext, schema);
     }
     
     @Override

@@ -137,7 +137,12 @@ public enum ConfigurationPropertyKey implements TypedPropertyKey {
     /**
      * Whether check duplicate table.
      */
-    CHECK_DUPLICATE_TABLE_ENABLED("check-duplicate-table-enabled", String.valueOf(Boolean.FALSE), boolean.class);
+    CHECK_DUPLICATE_TABLE_ENABLED("check-duplicate-table-enabled", String.valueOf(Boolean.FALSE), boolean.class),
+
+    /**
+     * Whether show none config tables
+     */
+    SHOW_NONE_CONFIG_TABLES("show-none-config-tables", String.valueOf(Boolean.TRUE), boolean.class);
     
     private final String key;
     

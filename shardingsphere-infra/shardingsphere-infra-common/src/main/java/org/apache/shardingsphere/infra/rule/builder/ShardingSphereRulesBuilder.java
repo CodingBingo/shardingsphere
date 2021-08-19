@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.function.DistributedRuleConfiguration;
 import org.apache.shardingsphere.infra.config.function.EnhancedRuleConfiguration;
+import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.infra.rule.builder.level.DefaultKernelRuleConfigurationBuilder;
@@ -60,7 +61,9 @@ public final class ShardingSphereRulesBuilder {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Collection<ShardingSphereRule> buildSchemaRules(final ShardingSphereRulesBuilderMaterials materials) {
         Map<RuleConfiguration, SchemaRuleBuilder> builders = getSchemaRuleBuilders(materials.getSchemaRuleConfigs());
-        appendDefaultKernelSchemaRuleConfigurationBuilder(builders);
+        if (materials.getProps().getValue(ConfigurationPropertyKey.SHOW_NONE_CONFIG_TABLES)) {
+            appendDefaultKernelSchemaRuleConfigurationBuilder(builders);
+        }
         Collection<ShardingSphereRule> result = new LinkedList<>();
         for (Entry<RuleConfiguration, SchemaRuleBuilder> entry : builders.entrySet()) {
             result.add(entry.getValue().build(materials, entry.getKey(), result));

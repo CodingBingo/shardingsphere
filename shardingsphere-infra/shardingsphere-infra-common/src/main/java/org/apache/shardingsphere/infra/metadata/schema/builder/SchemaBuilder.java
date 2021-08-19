@@ -20,6 +20,7 @@ package org.apache.shardingsphere.infra.metadata.schema.builder;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.database.type.DatabaseType;
 import org.apache.shardingsphere.infra.exception.ShardingSphereException;
 import org.apache.shardingsphere.infra.metadata.schema.builder.loader.ColumnMetaDataLoader;
@@ -85,7 +86,9 @@ public final class SchemaBuilder {
     
     private static Map<String, TableMetaData> buildActualTableMetaDataMap(final SchemaBuilderMaterials materials) throws SQLException {
         Map<String, TableMetaData> result = new HashMap<>(materials.getRules().size(), 1);
-        appendRemainTables(materials, result);
+        if (materials.getProps().getValue(ConfigurationPropertyKey.SHOW_NONE_CONFIG_TABLES)) {
+            appendRemainTables(materials, result);
+        }
         appendLogicTables(materials, result);
         return result;
     }

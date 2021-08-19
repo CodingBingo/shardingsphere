@@ -53,6 +53,7 @@ public final class ShardingInsertStatementValidator extends ShardingDMLStatement
         if (null == ((InsertStatementContext) sqlStatementContext).getInsertSelectContext()) {
             validateMultipleTable(shardingRule, sqlStatementContext);
         }
+        isTableExist(sqlStatementContext, schema);
         InsertStatement sqlStatement = sqlStatementContext.getSqlStatement();
         Optional<OnDuplicateKeyColumnsSegment> onDuplicateKeyColumnsSegment = InsertStatementHandler.getOnDuplicateKeyColumnsSegment(sqlStatement);
         String tableName = sqlStatement.getTable().getTableName().getIdentifier().getValue();
