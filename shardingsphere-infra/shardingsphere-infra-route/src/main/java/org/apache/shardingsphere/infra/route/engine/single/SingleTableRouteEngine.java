@@ -88,11 +88,21 @@ public final class SingleTableRouteEngine {
                 routeContext.getRouteUnits().add(getRandomRouteUnit(rule));
             }
         } else {
+            decorateRouteContextForFederate(routeContext);
             fillRouteContext(rule, routeContext, singleTableNames);
-            if (1 < routeContext.getRouteUnits().size()) {
-                routeContext.setFederated(true);
-            }
         }
+    }
+    
+    private void decorateRouteContextForFederate(final RouteContext routeContext) {
+        RouteContext newRouteContext = new RouteContext();
+        for (RouteUnit each : routeContext.getRouteUnits()) {
+            newRouteContext.putRouteUnit(each.getDataSourceMapper(), each.getTableMappers());
+        }
+        routeContext.setFederated(true);
+        routeContext.getRouteUnits().clear();
+        routeContext.getOriginalDataNodes().clear();
+        routeContext.getRouteUnits().addAll(newRouteContext.getRouteUnits());
+        routeContext.getOriginalDataNodes().addAll(newRouteContext.getOriginalDataNodes());
     }
     
     private boolean isDDLTableStatement() {
@@ -120,11 +130,12 @@ public final class SingleTableRouteEngine {
     }
     
     private void fillRouteContext(final SingleTableRule singleTableRule, final RouteContext routeContext, final Collection<String> logicTables) {
+        Map<String, SingleTableDataNode> singleTableDataNodes = singleTableRule.getSingleTableDataNodes();
         for (String each : logicTables) {
-            if (!singleTableRule.getSingleTableDataNodes().containsKey(each)) {
+            if (!singleTableDataNodes.containsKey(each)) {
                 throw new ShardingSphereException("`%s` single table does not exist.", each);
             }
-            String dataSource = singleTableRule.getSingleTableDataNodes().get(each).getDataSourceName();
+            String dataSource = singleTableDataNodes.get(each).getDataSourceName();
             routeContext.putRouteUnit(new RouteMapper(dataSource, dataSource), Collections.singletonList(new RouteMapper(each, each)));
         }
     }
