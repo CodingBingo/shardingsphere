@@ -26,7 +26,7 @@ public class WangJenkinsHashModShardingAlgorithmTest {
     @Test
     public void assertPreciseDoSharding() {
         List<String> availableTargetNames = Arrays.asList("t_order_0", "t_order_1", "t_order_2", "t_order_3");
-        assertThat(wangJenkinsHashModShardingAlgorithm.doSharding(availableTargetNames, new PreciseShardingValue<>("t_order", "order_type", "a")), is("t_order_1"));
+        assertThat(wangJenkinsHashModShardingAlgorithm.doSharding(availableTargetNames, new PreciseShardingValue<>("t_order", "order_type", "ccccc")), is("t_order_0"));
     }
 
     @Test

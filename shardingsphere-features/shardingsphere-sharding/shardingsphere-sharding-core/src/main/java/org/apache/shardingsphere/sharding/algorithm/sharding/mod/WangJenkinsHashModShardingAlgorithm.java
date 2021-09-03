@@ -1,6 +1,8 @@
 package org.apache.shardingsphere.sharding.algorithm.sharding.mod;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.shardingsphere.sharding.api.sharding.ShardingAutoTableAlgorithm;
 import org.apache.shardingsphere.sharding.api.sharding.standard.PreciseShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.RangeShardingValue;
@@ -10,6 +12,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
 
+@Getter
+@Setter
 public final class WangJenkinsHashModShardingAlgorithm implements StandardShardingAlgorithm<Comparable<?>>, ShardingAutoTableAlgorithm {
     private static final String SHARDING_COUNT_KEY = "sharding-count";
 
