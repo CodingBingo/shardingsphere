@@ -7,6 +7,7 @@ import org.apache.shardingsphere.sharding.api.sharding.ShardingAutoTableAlgorith
 import org.apache.shardingsphere.sharding.api.sharding.standard.PreciseShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.RangeShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.StandardShardingAlgorithm;
+import org.apache.shardingsphere.sharding.support.WangJenkinsHashAlgorithm;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -58,18 +59,7 @@ public final class WangJenkinsHashModShardingAlgorithm implements StandardShardi
     }
 
     private long hashShardingValue(final Comparable<?> shardingValue) {
-        return Math.abs(hash(shardingValue.hashCode()));
-    }
-
-    private long hash(int key) {
-        key = (~key) + (key << 21); // key = (key << 21) - key - 1;
-        key = key ^ (key >> 24);
-        key = (key + (key << 3)) + (key << 8); // key * 265
-        key = key ^ (key >> 14);
-        key = (key + (key << 2)) + (key << 4); // key * 21
-        key = key ^ (key >> 28);
-        key = key + (key << 31);
-        return key;
+        return Math.abs(WangJenkinsHashAlgorithm.wjHash(shardingValue.hashCode()));
     }
 
     @Override
