@@ -36,9 +36,9 @@ import org.apache.shardingsphere.infra.metadata.rule.ShardingSphereRuleMetaData;
 import org.apache.shardingsphere.infra.metadata.schema.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.optimize.core.metadata.FederateSchemaMetadata;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
-import org.apache.shardingsphere.infra.rule.builder.ShardingSphereRulesBuilder;
+import org.apache.shardingsphere.infra.rule.builder.global.GlobalRulesBuilder;
 import org.apache.shardingsphere.infra.rule.event.impl.DataSourceNameDisabledEvent;
-import org.apache.shardingsphere.infra.rule.event.impl.PrimaryDataSourceEvent;
+import org.apache.shardingsphere.infra.rule.event.impl.PrimaryDataSourceChangedEvent;
 import org.apache.shardingsphere.infra.rule.identifier.type.StatusContainedRule;
 import org.apache.shardingsphere.mode.manager.ContextManager;
 import org.apache.shardingsphere.mode.manager.ContextManagerBuilder;
@@ -128,7 +128,7 @@ public final class ClusterContextManagerBuilder implements ContextManagerBuilder
     private void afterBuildContextManager() {
         disableDataSources();
         persistMetaData();
-        registryCenter.onlineInstance(metaDataContexts.getAllSchemaNames());
+        registryCenter.onlineInstance();
     }
     
     private ClusterPersistRepository createClusterPersistRepository(final ClusterPersistRepositoryConfiguration config) {
@@ -366,7 +366,7 @@ public final class ClusterContextManagerBuilder implements ContextManagerBuilder
         Collection<ShardingSphereRule> rules = contextManager.getMetaDataContexts().getMetaDataMap().get(governanceSchema.getSchemaName()).getRuleMetaData().getRules();
         for (ShardingSphereRule each : rules) {
             if (each instanceof StatusContainedRule) {
-                ((StatusContainedRule) each).updateRuleStatus(new DataSourceNameDisabledEvent(governanceSchema.getDataSourceName(), event.isDisabled()));
+                ((StatusContainedRule) each).updateStatus(new DataSourceNameDisabledEvent(governanceSchema.getDataSourceName(), event.isDisabled()));
             }
         }
     }
@@ -382,7 +382,7 @@ public final class ClusterContextManagerBuilder implements ContextManagerBuilder
         Collection<ShardingSphereRule> rules = contextManager.getMetaDataContexts().getMetaDataMap().get(governanceSchema.getSchemaName()).getRuleMetaData().getRules();
         for (ShardingSphereRule each : rules) {
             if (each instanceof StatusContainedRule) {
-                ((StatusContainedRule) each).updateRuleStatus(new PrimaryDataSourceEvent(governanceSchema.getSchemaName(), governanceSchema.getDataSourceName(), event.getPrimaryDataSourceName()));
+                ((StatusContainedRule) each).updateStatus(new PrimaryDataSourceChangedEvent(governanceSchema.getSchemaName(), governanceSchema.getDataSourceName(), event.getPrimaryDataSourceName()));
             }
         }
     }
@@ -397,24 +397,27 @@ public final class ClusterContextManagerBuilder implements ContextManagerBuilder
         Collection<RuleConfiguration> newGlobalConfigs = event.getRuleConfigurations();
         if (!newGlobalConfigs.isEmpty()) {
             ShardingSphereRuleMetaData newGlobalRuleMetaData = new ShardingSphereRuleMetaData(newGlobalConfigs,
-                    ShardingSphereRulesBuilder.buildGlobalRules(newGlobalConfigs, contextManager.getMetaDataContexts().getMetaDataMap()));
+                    GlobalRulesBuilder.buildRules(newGlobalConfigs, contextManager.getMetaDataContexts().getMetaDataMap()));
             contextManager.renewMetaDataContexts(rebuildMetaDataContexts(newGlobalRuleMetaData));
         }
     }
     
     private MetaDataContexts rebuildMetaDataContexts(final Map<String, ShardingSphereMetaData> schemaMetaData) {
+        Preconditions.checkState(contextManager.getMetaDataContexts().getPersistService().isPresent());
         return new MetaDataContexts(contextManager.getMetaDataContexts().getPersistService().get(),
                 schemaMetaData, contextManager.getMetaDataContexts().getGlobalRuleMetaData(), contextManager.getMetaDataContexts().getExecutorEngine(),
                 contextManager.getMetaDataContexts().getProps(), contextManager.getMetaDataContexts().getOptimizeContextFactory());
     }
     
     private MetaDataContexts rebuildMetaDataContexts(final ConfigurationProperties props) {
+        Preconditions.checkState(contextManager.getMetaDataContexts().getPersistService().isPresent());
         return new MetaDataContexts(contextManager.getMetaDataContexts().getPersistService().get(),
                 contextManager.getMetaDataContexts().getMetaDataMap(), contextManager.getMetaDataContexts().getGlobalRuleMetaData(), contextManager.getMetaDataContexts().getExecutorEngine(),
                 props, contextManager.getMetaDataContexts().getOptimizeContextFactory());
     }
     
     private MetaDataContexts rebuildMetaDataContexts(final ShardingSphereRuleMetaData globalRuleMetaData) {
+        Preconditions.checkState(contextManager.getMetaDataContexts().getPersistService().isPresent());
         return new MetaDataContexts(contextManager.getMetaDataContexts().getPersistService().get(),
                 contextManager.getMetaDataContexts().getMetaDataMap(), globalRuleMetaData, contextManager.getMetaDataContexts().getExecutorEngine(),
                 contextManager.getMetaDataContexts().getProps(), contextManager.getMetaDataContexts().getOptimizeContextFactory());
@@ -607,7 +610,7 @@ public final class ClusterContextManagerBuilder implements ContextManagerBuilder
     
     private void disableDataSources(final String schemaName, final StatusContainedRule rule) {
         Collection<String> disabledDataSources = registryCenter.getDataSourceStatusService().loadDisabledDataSources(schemaName);
-        disabledDataSources.stream().map(this::getDataSourceName).forEach(each -> rule.updateRuleStatus(new DataSourceNameDisabledEvent(each, true)));
+        disabledDataSources.stream().map(this::getDataSourceName).forEach(each -> rule.updateStatus(new DataSourceNameDisabledEvent(each, true)));
     }
     
     private String getDataSourceName(final String disabledDataSource) {
