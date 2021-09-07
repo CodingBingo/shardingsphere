@@ -56,7 +56,7 @@ public class WangJenkinsHashModRangeShardingAlgorithm implements StandardShardin
             Long index = partitionRange.get(0);
             Long low = partitionRange.get(1);
             Long high = partitionRange.get(2);
-            result.put(index, Range.closedOpen(low, high));
+            result.put(index, Range.closed(low, high));
         }
 
         return result;
