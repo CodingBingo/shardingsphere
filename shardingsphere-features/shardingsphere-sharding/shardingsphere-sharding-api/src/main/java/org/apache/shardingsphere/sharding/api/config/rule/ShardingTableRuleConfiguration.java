@@ -34,13 +34,14 @@ public final class ShardingTableRuleConfiguration {
     private final String logicTable;
     
     private final String actualDataNodes;
-    
+
     private ShardingStrategyConfiguration databaseShardingStrategy;
-    
+
     private ShardingStrategyConfiguration tableShardingStrategy;
-    
+
     private KeyGenerateStrategyConfiguration keyGenerateStrategy;
-    
+
+
     public ShardingTableRuleConfiguration(final String logicTable) {
         this(logicTable, null);
     }

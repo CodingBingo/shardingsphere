@@ -70,6 +70,8 @@ public final class TableRule {
     private final String generateKeyColumn;
     
     private final String keyGeneratorName;
+
+    private final Boolean needGenerateKey;
     
     private final Collection<String> actualDatasourceNames = new LinkedHashSet<>();
     
@@ -84,6 +86,7 @@ public final class TableRule {
         tableShardingStrategyConfig = null;
         generateKeyColumn = null;
         keyGeneratorName = null;
+        needGenerateKey = false;
     }
     
     public TableRule(final ShardingTableRuleConfiguration tableRuleConfig, final Collection<String> dataSourceNames, final String defaultGenerateKeyColumn) {
@@ -97,6 +100,7 @@ public final class TableRule {
         KeyGenerateStrategyConfiguration keyGeneratorConfig = tableRuleConfig.getKeyGenerateStrategy();
         generateKeyColumn = null != keyGeneratorConfig && !Strings.isNullOrEmpty(keyGeneratorConfig.getColumn()) ? keyGeneratorConfig.getColumn() : defaultGenerateKeyColumn;
         keyGeneratorName = null == keyGeneratorConfig ? null : keyGeneratorConfig.getKeyGeneratorName();
+        needGenerateKey = !Strings.isNullOrEmpty(keyGeneratorConfig.getColumn());
         checkRule(dataNodes);
     }
     
@@ -112,6 +116,7 @@ public final class TableRule {
         KeyGenerateStrategyConfiguration keyGeneratorConfig = tableRuleConfig.getKeyGenerateStrategy();
         generateKeyColumn = null != keyGeneratorConfig && !Strings.isNullOrEmpty(keyGeneratorConfig.getColumn()) ? keyGeneratorConfig.getColumn() : defaultGenerateKeyColumn;
         keyGeneratorName = null == keyGeneratorConfig ? null : keyGeneratorConfig.getKeyGeneratorName();
+        needGenerateKey = !Strings.isNullOrEmpty(keyGeneratorConfig.getColumn());
         checkRule(dataNodes);
     }
     
