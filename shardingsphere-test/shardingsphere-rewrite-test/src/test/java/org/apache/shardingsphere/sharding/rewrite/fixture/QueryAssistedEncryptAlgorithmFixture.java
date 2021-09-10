@@ -36,7 +36,10 @@ public final class QueryAssistedEncryptAlgorithmFixture implements QueryAssisted
     }
     
     @Override
-    public String queryAssistedEncrypt(final String plaintext) {
+    public String queryAssistedEncrypt(final Object plaintext) {
+        if (plaintext == null) {
+            return null;
+        }
         return "assisted_query_" + plaintext;
     }
     
